@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+code/outputs/*
+code/wandb/*
+code_past1/*
+code_past2/*
+code/scripts/outputs/
+code/scripts/wandb/
+code/visualization/
+myenv/
+venv/
+.venv/
+outputs/

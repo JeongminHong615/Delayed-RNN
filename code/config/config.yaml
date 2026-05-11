@@ -1,0 +1,17 @@
+defaults:
+  - _self_
+  - dataset: delaysequence
+  - model: DRNN_jm
+
+seed: 0
+num_epochs: 200
+batch_size: 128
+hidden_size: 256
+lr: 0.001
+use_lr_scheduler: True # 시간에 따라 lr 감소
+use_model_compile: True
+
+wandb:
+  use_wandb: False
+  entity: "CIDA"
+  group_name: "Test"
