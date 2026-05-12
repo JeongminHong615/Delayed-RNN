@@ -205,7 +205,7 @@ def main(args: hydra_dict) -> None: # config.yaml을 args로 저장
     if args.get("only_flops", False): 
         print(f"Model: {model_id}")
         print(f"FLOPs (Million): {flops_million:.2f} M")
-        print(f"✅ Parameters: {num_params:,} 개")
+        print(f"Parameters: {num_params:,} 개")
         sys.exit(0)
     
     if use_model_compile:
