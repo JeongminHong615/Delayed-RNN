@@ -3,14 +3,32 @@ __pycache__/
 *.pyo
 *.pyd
 
-code/outputs/*
-code/wandb/*
-code_past1/*
-code_past2/*
+# Hydra and W&B run outputs
+code/outputs/
+code/wandb/
 code/scripts/outputs/
 code/scripts/wandb/
+code/runs/
+outputs/
+
+# Trained model weights (binary, large)
+*.pth
+
+# Generated figures
+*.png
+
+# Paper PDFs (kept outside repo)
+*.pdf
+
+# Old code snapshots
+code_past1/
+code_past2/
 code/visualization/
+
+# Virtual envs
 myenv/
 venv/
 .venv/
-outputs/
+
+# Misc
+code/scripts/1

@@ -47,7 +47,7 @@ class DRNN_jm(nn.Module):
             self.hidden_size, self.output_size
         )
         
-        if dataset_id in ["delaysequence"]: # forward 함수를 데이터셋에 맞게 바꿔줘
+        if dataset_id in ["delaysequence", "delaysequence_hard"]: # forward 함수를 데이터셋에 맞게 바꿔줘
             self.forward = self.SignalPeriod_forward
         else:
             raise NotImplementedError(f"Dataset {dataset_id} not supported for RNN model.")

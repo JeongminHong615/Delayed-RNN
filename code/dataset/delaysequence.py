@@ -14,6 +14,8 @@ class DelaySequenceDataset(Dataset):
             max_len=100,
             k = 10, # 클래스 개수(one-hot vector) 종류 -> 그니까 수는 0~9까지만 가능
             delay=10,
+            min_delay=None,
+            max_delay=None,
             train=True
         ):
         super().__init__()
@@ -22,11 +24,14 @@ class DelaySequenceDataset(Dataset):
         self.min_len = min_len
         self.max_len = max_len
         self.k = k
-        self.delay = delay
+        self.delay = delay  # backward-compat attribute (used by verify_delay_numerically)
+        # Dynamic-delay range; if not given, both equal `delay` (fixed mode).
+        self.min_delay = min_delay if min_delay is not None else delay
+        self.max_delay = max_delay if max_delay is not None else delay
         self.train_mode = train
 
         self.input_size = k+2 # one-hot vector + 구분자 + delay 토큰
-        self.total_len = max_len + max_len + delay
+        self.total_len = max_len + max_len + self.max_delay
         self.output_size = k
         self.seq_len = self.total_len
 
@@ -36,13 +41,14 @@ class DelaySequenceDataset(Dataset):
 
     def __getitem__(self, idx):
         seq_len = random.randint(self.min_len, self.max_len)
+        delay = random.randint(self.min_delay, self.max_delay)
         seq = [random.randint(0, self.k - 1) for _ in range(seq_len)] # seq_len개의 데이터(0~k의 정수) 뽑기
         seq_tensor = torch.tensor(seq, dtype=torch.long) # 정수 시퀀스를 텐서로 변환
 
         input_seq = torch.zeros(self.total_len, self.input_size) # 입력 시퀀스 초기화
         input_seq[:seq_len, :self.k] = F.one_hot(seq_tensor, num_classes=self.k).float()
 
-        target_delay = seq_len + self.delay
+        target_delay = seq_len + delay
         input_seq[:, self.k+1] = target_delay / self.total_len # 수정 : input_seq[:seq_len, self.k] -> input_seq[:, self.k]
 
         start_output = target_delay

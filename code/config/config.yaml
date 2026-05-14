@@ -9,7 +9,7 @@ batch_size: 128
 hidden_size: 256
 lr: 0.001
 use_lr_scheduler: True # 시간에 따라 lr 감소
-use_model_compile: True
+use_model_compile: False  # torch.compile shows speedup in micro-bench but slows down full training due to train/eval mode toggles triggering recompilation
 
 wandb:
   use_wandb: False

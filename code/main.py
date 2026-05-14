@@ -168,19 +168,21 @@ def main(args: hydra_dict) -> None: # config.yaml을 args로 저장
     seq_len: int = train_dataset.seq_len
     
     train_dataloader = DataLoader(
-        train_dataset, 
-        batch_size=batch_size, 
+        train_dataset,
+        batch_size=batch_size,
         shuffle=True,
         num_workers=4,
-        pin_memory=True
+        pin_memory=True,
+        drop_last=True,  # keep batch shape consistent for torch.compile
     )
     eval_dataloader = DataLoader(
-        eval_dataset, 
-        batch_size=batch_size, 
+        eval_dataset,
+        batch_size=batch_size,
         shuffle=False,
         num_workers=4,
-        pin_memory=True
-    ) 
+        pin_memory=True,
+        drop_last=True,
+    )
     model = MODEL_REGISTRY[model_id](
         **model_args,
         input_size=input_size,
@@ -210,11 +212,12 @@ def main(args: hydra_dict) -> None: # config.yaml을 args로 저장
     
     if use_model_compile:
         print("Model compiling...")
+        # dynamic=True avoids recompilation when train/eval mode toggles
+        # (dropout has different behavior, triggering graph differences).
         model = torch.compile(
             model = model,
-            mode="reduce-overhead",
-            fullgraph=True,
-            disable=use_model_compile # ?
+            fullgraph=False,
+            dynamic=True,
         )
         start_time = time.time()
         eval_dataset.init_model_compile(
@@ -280,12 +283,19 @@ def main(args: hydra_dict) -> None: # config.yaml을 args로 저장
             })  
         
         current_loss = eval_logs.get('Eval/loss', float('inf'))
-        
+
+        ev_ca = eval_logs.get('Eval/accuracy', float('nan'))
+        ev_sa = eval_logs.get('Eval/seq_accuracy', float('nan'))
+        ev_loss = eval_logs.get('Eval/loss', float('nan'))
+        tr_loss = train_logs.get('Train/loss', float('nan'))
+        print(
+            f"[ep {epoch:>3d}] train_loss={tr_loss:.4f} eval_loss={ev_loss:.4f} | CA={ev_ca:.4f} SA={ev_sa:.4f}",
+            flush=True,
+        )
+
         if current_loss < best_loss:
             best_loss = current_loss
-            # 모델의 가중치(state_dict)를 파일로 안전하게 저장합니다!
             torch.save(model.state_dict(), saved_model_path)
-            # print(f"  --> [Epoch {epoch}] 최고 성능 갱신! 모델이 저장되었습니다. (Loss: {best_loss:.4f})")
     
     print(f"\n 학습 종료! 최고 성능 모델({saved_model_path})을 불러와 수치 검증을 시작합니다.")
     model.load_state_dict(torch.load(saved_model_path, map_location=device, weights_only=True))
