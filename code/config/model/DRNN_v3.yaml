@@ -1,0 +1,4 @@
+id: DRNN_v3
+max_delay: 100
+init_sigma: 5.0
+min_sigma: 0.5
