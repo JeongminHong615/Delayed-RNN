@@ -1,26 +1,23 @@
-import time
-import wandb 
-import hydra
-import torch
-import seaborn as sns
-import matplotlib.pyplot as plt
 import sys
-import torch.nn.utils.prune as prune
-import seaborn as sns
-import numpy as np
-import torch.nn.functional as F
+import time
+
+import hydra
 import matplotlib.patches as mpatches
-
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import torch
+import torch.nn.functional as F
+import wandb
 from omegaconf import OmegaConf
-from tqdm import tqdm 
-from utils.type import hydra_dict
-from utils.utils import set_seed, calculate_flops
+from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import LinearLR, CosineAnnealingLR, SequentialLR
+from tqdm import tqdm
 
-
-from model import MODEL_REGISTRY
 from dataset import DATASET_REGISTRY
+from model import MODEL_REGISTRY
+from utils.type import hydra_dict
+from utils.utils import calculate_flops, set_seed
 
 plt.rc('font', family='NanumGothic')
 plt.rcParams['axes.unicode_minus'] = False
@@ -284,12 +281,18 @@ def main(args: hydra_dict) -> None: # config.yaml을 args로 저장
         
         current_loss = eval_logs.get('Eval/loss', float('inf'))
 
-        ev_ca = eval_logs.get('Eval/accuracy', float('nan'))
-        ev_sa = eval_logs.get('Eval/seq_accuracy', float('nan'))
         ev_loss = eval_logs.get('Eval/loss', float('nan'))
         tr_loss = train_logs.get('Train/loss', float('nan'))
+        # Dataset-aware extra metrics (classification: CA/SA, regression: ERLE)
+        extras = []
+        if 'Eval/accuracy' in eval_logs:
+            extras.append(f"CA={eval_logs['Eval/accuracy']:.4f}")
+        if 'Eval/seq_accuracy' in eval_logs:
+            extras.append(f"SA={eval_logs['Eval/seq_accuracy']:.4f}")
+        if 'Eval/erle' in eval_logs:
+            extras.append(f"ERLE={eval_logs['Eval/erle']:.2f}dB")
         print(
-            f"[ep {epoch:>3d}] train_loss={tr_loss:.4f} eval_loss={ev_loss:.4f} | CA={ev_ca:.4f} SA={ev_sa:.4f}",
+            f"[ep {epoch:>3d}] train_loss={tr_loss:.4f} eval_loss={ev_loss:.4f} | {' '.join(extras)}",
             flush=True,
         )
 

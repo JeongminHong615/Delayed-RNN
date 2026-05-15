@@ -41,13 +41,12 @@ class DRNN_jm(nn.Module):
              nn.Linear(self.hidden_size, self.hidden_size),
              nn.ReLU(),
              nn.Linear(self.hidden_size, self.max_delay))
-         # k를 얼마나 delay할지 정하는 레이어. # 가중치행렬이 (1,md)
         
         self.output_layer = nn.Linear(
             self.hidden_size, self.output_size
         )
         
-        if dataset_id in ["delaysequence", "delaysequence_hard"]: # forward 함수를 데이터셋에 맞게 바꿔줘
+        if dataset_id in ["delaysequence", "delaysequence_hard", "aec_synthetic", "seq_mnist"]:
             self.forward = self.SignalPeriod_forward
         else:
             raise NotImplementedError(f"Dataset {dataset_id} not supported for RNN model.")
@@ -107,8 +106,7 @@ class DRNN_jm(nn.Module):
             h_t: Float[Tensor, "b h"] = self.relu(emebed_t[:, :self.hidden_size])  
             m_t1: Float[Tensor, "b h 1"] = self.norm(raw_memory).unsqueeze(-1)  # 수정
             
-            # 각각의 뉴런을 얼마나 delay할지
-            shared_delay_logits = self.delay_layer(h_t) 
+            shared_delay_logits = self.delay_layer(h_t)
             delay_steps = shared_delay_logits.unsqueeze(1).expand(-1, self.hidden_size, -1)
             
             delay_one_hot: Float[Tensor, "b md h"] = F.gumbel_softmax(delay_steps, tau=current_tau, hard=True, dim=-1).transpose(1, 2) # forward에서 정수였던 애를 tau를 써서 부드러운 확률값으로 만들어 backward가 가능하게. (b,md,h)->(b,h,md)

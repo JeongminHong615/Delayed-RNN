@@ -1,6 +1,0 @@
-id: "delaysequence_hard"
-k: 10
-min_len: 5
-max_len: 50
-delay: 10
-size: 10000

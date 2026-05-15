@@ -1,4 +1,0 @@
-id: DRNN_sc
-max_delay: 50
-init_tau: 1.0
-min_tau: 0.1

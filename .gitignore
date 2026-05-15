@@ -17,7 +17,8 @@ outputs/
 # Generated figures
 *.png
 
-# Paper PDFs (kept outside repo)
+# Paper manuscript (not tracked in repo)
+paper/
 *.pdf
 
 # Old code snapshots
