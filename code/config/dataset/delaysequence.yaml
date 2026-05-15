@@ -2,4 +2,5 @@ id: "delaysequence"
 k: 10 # 이진수 변환 및 클래스 수 결정 (data 0~9)
 min_len: 5
 max_len: 50
+delay: 10
 size: 10000 # 에포크 당 샘플 수

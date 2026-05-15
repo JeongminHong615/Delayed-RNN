@@ -32,7 +32,7 @@ class LSTM(nn.Module):
         )
         self.output_layer = nn.Linear(self.hidden_size, self.output_size)
         
-        if dataset_id in ["delaysequence"]:
+        if dataset_id in ["delaysequence", "delaysequence_hard", "aec_synthetic", "seq_mnist"]:
             self.forward = self.SignalPeriod_forward
         else:
             raise NotImplementedError(f"Dataset {dataset_id} not supported for LSTM model.")

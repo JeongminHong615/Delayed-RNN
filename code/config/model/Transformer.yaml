@@ -1,0 +1,6 @@
+id: Transformer
+num_layers: 2
+num_heads: 4
+dim_feedforward: 128
+dropout: 0.2
+max_seq_len: 1000
